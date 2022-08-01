@@ -1,0 +1,9 @@
+{
+  "name": "com.cheers.unityextensions",
+  "version": "0.1.0",
+  "displayName": "Cheers Unity Extensions",
+  "description": "Handy utility functions collected over a decade of using Unity",
+  "unity": "2020.3",
+  "unityRelease": "24f1",
+  "dependencies": {}
+}

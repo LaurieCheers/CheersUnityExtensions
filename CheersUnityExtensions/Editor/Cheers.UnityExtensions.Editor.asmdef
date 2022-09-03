@@ -1,0 +1,18 @@
+{
+    "name": "Cheers.UnityExtensions.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:2d4bbd7bb0fbcf1408f47edca2eaca94"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

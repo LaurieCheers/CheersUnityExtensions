@@ -48,6 +48,17 @@ public static class CheersGameObjectExtensions
             GameObject.Destroy(cmp.gameObject);
     }
 
+    public static void DestroyGameObjectAfterDelay(this MonoBehaviour bhv, float delay)
+    {
+        bhv.StartCoroutine(DestroyAfterDelay(bhv.gameObject, delay));
+    }
+
+    public static IEnumerator DestroyAfterDelay(GameObject obj, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        DestroyGameObject(obj);
+    }
+
     //=====================================================================================================
     // 16 variants of the same convenience function for instantiating prefabs
     //
@@ -57,7 +68,7 @@ public static class CheersGameObjectExtensions
 
     public static GameObject Instantiate(this GameObject obj, Transform parent, Vector3 localPosition, Quaternion localRotation, Vector3 localScale)
     {
-        GameObject result = GameObject.Instantiate(obj, parent.transform);
+        GameObject result = GameObject.Instantiate(obj, parent);
         result.transform.localPosition = localPosition;
         result.transform.localRotation = localRotation;
         result.transform.localScale = localScale;
@@ -84,7 +95,7 @@ public static class CheersGameObjectExtensions
 
     public static T Instantiate<T>(this T obj, Transform parent, Vector3 localPosition, Quaternion localRotation, Vector3 localScale) where T : Component
     {
-        T result = GameObject.Instantiate(obj, parent.transform);
+        T result = GameObject.Instantiate(obj, parent);
         result.transform.localPosition = localPosition;
         result.transform.localRotation = localRotation;
         result.transform.localScale = localScale;

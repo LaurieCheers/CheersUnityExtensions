@@ -51,3 +51,23 @@ public class OnEnterPlay_Run : OnEnterPlay_BaseAttribute
 {
     public override void OnEnterPlay(MethodInfo method) => method.Invoke(null, new object[0]);
 }
+
+// For situations (e.g. ScriptableObjects that have extra non-serialized state) where you can't
+// make a static function that reinitializes your object:
+// Store an EnterPlayID somewhere when you initialize your object, and check its IsCurrent
+// property to decide whether to reinitialize the object.
+public struct EnterPlayID
+{
+    static int currentID = 1;
+
+    [OnEnterPlay_Run]
+    static void NextID()
+    {
+        currentID++;
+    }
+
+    int id;
+    public static EnterPlayID GetCurrent() => new EnterPlayID { id = currentID };
+
+    public bool IsCurrent => id == currentID;
+}

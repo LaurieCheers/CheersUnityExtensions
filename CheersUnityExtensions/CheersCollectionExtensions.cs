@@ -423,7 +423,21 @@ public static class CheersCollectionExtensions
         return result;
     }
 
+    public static List<T> PopRange<T>(this List<T> self, int index, int count)
+    {
+        List<T> result = self.GetRange(index, count);
+        self.RemoveRange(index, count);
+        return result;
+    }
+
     public static T PopLast<T>(this List<T> self) => self.PopItemAt(self.Count - 1);
+
+    public static List<T> PopLast<T>(this List<T> self, int count)
+    {
+        if (count > self.Count)
+            count = self.Count;
+        return self.PopRange(self.Count - count, count);
+    }
 
     public static T PopAndSwapItemAt<T>(this List<T> self, int index)
     {

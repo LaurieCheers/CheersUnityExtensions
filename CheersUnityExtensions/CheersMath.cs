@@ -40,6 +40,9 @@ public static class CheersMath
     public static Quaternion CosLerp(Quaternion a, Quaternion b, float t) => Quaternion.Lerp(a, b, CosBlend(t));
     public static Quaternion CosSlerp(Quaternion a, Quaternion b, float t) => Quaternion.Slerp(a, b, CosBlend(t));
 
+    public static Vector2 ToVector2(this Vector2Int self) => new Vector2(self.x, self.y);
+    public static Vector3 ToVector3(this Vector3Int self) => new Vector3(self.x, self.y, self.z);
+
     //=========================================
     // Vector3 extension methods
     //=========================================

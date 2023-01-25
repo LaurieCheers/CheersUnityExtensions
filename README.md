@@ -15,6 +15,10 @@ Ray functions that project the Ray to an arbitrary plane, or snap to the nearest
 
 Quaternion extension methods that convert to/from a parent rotation.
 
+## Transform.TransformRotation, InverseTransformRotation
+ 
+Transform extension methods, continuing the pattern of TransformPoint, InverseTransformDirection, etc.
+
 ## List.FindMin/FindMax, ItemWithMin/ItemWithMax, IndexOfMin/IndexOfMax, ListItemsWithMin/ListItemsWithMax:
 A family of List/Array extension methods that either -
    - Return the smallest/largest item in the list.

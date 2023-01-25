@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+public enum RemoveThisItem
+{
+    No,
+    Yes,
+}
 public static class CheersCollectionExtensions
 {
     public static int FindMin(this IEnumerable<int> self)
@@ -410,6 +415,18 @@ public static class CheersCollectionExtensions
         return self[self.GetRandomIndex()];
     }
 
+    public static T GetRandom<T>(this IEnumerable<T> self)
+    {
+        int numValues = 0;
+        T result = default(T);
+        foreach (T value in self)
+        {
+            if (Random.Range(0, numValues) == 0)
+                result = value;
+        }
+        return result;
+    }
+
     public static void InsertRandom<T>(this List<T> self, T newValue)
     {
         // NB not the same range as GetRandomIndex! self.Count is a valid insertion index.
@@ -572,5 +589,31 @@ public static class CheersCollectionExtensions
             result.Add(value);
         }
         return result;
+    }
+
+    public static void ForEach<T>(this List<T> list, System.Func<T, RemoveThisItem> body)
+    {
+        for (int Idx = 0; Idx < list.Count;)
+        {
+            T t = list[Idx];
+            RemoveThisItem result = body(t);
+            if (result == RemoveThisItem.Yes)
+                list.RemoveAt(Idx);
+            else
+                ++Idx;
+        }
+    }
+
+    public static void ForEach<T>(this List<T> list, System.Func<int, T, RemoveThisItem> body)
+    {
+        for (int Idx = 0; Idx < list.Count;)
+        {
+            T t = list[Idx];
+            RemoveThisItem result = body(Idx, t);
+            if (result == RemoveThisItem.Yes)
+                list.RemoveAt(Idx);
+            else
+                ++Idx;
+        }
     }
 }

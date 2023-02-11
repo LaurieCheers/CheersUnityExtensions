@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,6 +8,33 @@ public static class CheersStringExtensions
     public static T ToEnum<T>(this string s)
     {
         return (T)System.Enum.Parse(typeof(T), s);
+    }
+
+    public static object ParseOrDefault(Type enumType, string text)
+    {
+        try
+        {
+            object result = System.Enum.Parse(enumType, text);
+            return result;
+        }
+        catch (ArgumentException)
+        {
+            Debug.LogError($"Parsing enum {enumType}: {text} is not a valid value");
+            return Activator.CreateInstance(enumType); // default value
+        }
+    }
+
+    public static object ParseWithFallback(Type enumType, string text, object fallback)
+    {
+        try
+        {
+            object result = System.Enum.Parse(enumType, text);
+            return result;
+        }
+        catch (ArgumentException)
+        {
+            return fallback;
+        }
     }
 
     public static string ToFriendlyString(this System.DateTime date)

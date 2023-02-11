@@ -10,6 +10,33 @@ public enum RemoveThisItem
 }
 public static class CheersCollectionExtensions
 {
+    public static T First<T>(this IEnumerable<T> self, System.Func<T, bool> test)
+    {
+        foreach (T item in self)
+            if (test(item))
+                return item;
+
+        return default(T);
+    }
+
+    public static T First<T>(this IEnumerable<T> self, System.Func<T, bool> test, T fallback)
+    {
+        foreach (T item in self)
+            if (test(item))
+                return item;
+
+        return fallback;
+    }
+
+    public static T First<T>(this IEnumerable<T> self, System.Func<T, bool> test, System.Func<T> fallback)
+    {
+        foreach (T item in self)
+            if (test(item))
+                return item;
+
+        return fallback();
+    }
+
     public static int FindMin(this IEnumerable<int> self)
     {
         int min = int.MaxValue;
@@ -404,6 +431,17 @@ public static class CheersCollectionExtensions
 
     public static T Last<T>(this IReadOnlyList<T> self) => self[self.Count - 1];
     public static void RemoveLast<T>(this List<T> self) => self.RemoveAt(self.Count - 1);
+
+    public static void Add<T>(this List<T> self, params T[] items)
+    {
+        self.AddRange(items);
+    }
+
+    public static void Add<T>(this HashSet<T> self, params T[] items)
+    {
+        foreach(T item in items)
+            self.Add(item);
+    }
 
     public static int GetRandomIndex<T>(this IReadOnlyList<T> self)
     {

@@ -54,12 +54,64 @@ public class RichCallback<T>
         callbacks.AddItem(listener, t=> listener());
     }
 
-    public void Remove<T2>(Action<T, T2> listener)
+    public void AddByKey(object key, Action<T> listener)
+    {
+        callbacks.AddItem(key, listener);
+    }
+
+    public void Remove(object key)
+    {
+        callbacks.Remove(key);
+    }
+
+    public void Invoke(T value)
+    {
+        foreach (List<Action<T>> listeners in callbacks.Values)
+            foreach (Action<T> action in listeners)
+                action(value);
+    }
+}
+
+public class RichCallback<T1, T2>
+{
+    Dictionary<object, List<Action<T1, T2>>> callbacks = new Dictionary<object, List<Action<T1, T2>>>();
+
+    public void Add<T3>(Action<T1, T2, T3> listener, T3 userData)
+    {
+        callbacks.AddItem(listener, (t1,t2) => listener(t1,t2, userData));
+    }
+
+    public void Add<T3>(Action<T2, T3> listener, T3 userData)
+    {
+        callbacks.AddItem(listener, (t1, t2) => listener(t2, userData));
+    }
+
+    public void Add(Action<T1, T2> listener)
+    {
+        callbacks.AddItem(listener, listener);
+    }
+
+    public void Add(Action<T2> listener)
+    {
+        callbacks.AddItem(listener, (t1, t2) => listener(t2));
+    }
+
+    public void Add(Action listener)
+    {
+        callbacks.AddItem(listener, (t1,t2) => listener());
+    }
+
+    public void Remove<T3>(Action<T1, T2, T3> listener)
     {
         callbacks.Remove(listener);
     }
 
-    public void Remove(Action<T> listener)
+    public void Remove<T3>(Action<T2, T3> listener)
+    {
+        callbacks.Remove(listener);
+    }
+
+    public void Remove(Action<T2> listener)
     {
         callbacks.Remove(listener);
     }
@@ -69,10 +121,10 @@ public class RichCallback<T>
         callbacks.Remove(listener);
     }
 
-    public void Invoke(T value)
+    public void Invoke(T1 value1, T2 value2)
     {
-        foreach (List<Action<T>> listeners in callbacks.Values)
-            foreach (Action<T> action in listeners)
-                action(value);
+        foreach (List<Action<T1,T2>> listeners in callbacks.Values)
+            foreach (Action<T1,T2> action in listeners)
+                action(value1, value2);
     }
 }

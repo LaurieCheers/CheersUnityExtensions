@@ -10,6 +10,14 @@ public enum RemoveThisItem
 }
 public static class CheersCollectionExtensions
 {
+    public static IEnumerable<T> ToIEnumerable<T>(this IEnumerator<T> enumerator)
+    {
+        while (enumerator.MoveNext())
+        {
+            yield return enumerator.Current;
+        }
+    }
+
     public static T First<T>(this IEnumerable<T> self, System.Func<T, bool> test)
     {
         foreach (T item in self)
@@ -429,6 +437,9 @@ public static class CheersCollectionExtensions
         return result;
     }
 
+    public static IEnumerator GetEnumerator(this IEnumerator enumerator) => enumerator;
+    public static IEnumerator<T> GetEnumerator<T>(this IEnumerator<T> enumerator) => enumerator;
+
     public static T Last<T>(this IReadOnlyList<T> self) => self[self.Count - 1];
     public static void RemoveLast<T>(this List<T> self) => self.RemoveAt(self.Count - 1);
 
@@ -455,12 +466,51 @@ public static class CheersCollectionExtensions
 
     public static T GetRandom<T>(this IEnumerable<T> self)
     {
-        int numValues = 0;
+        int numValues = 1;
         T result = default(T);
         foreach (T value in self)
         {
             if (Random.Range(0, numValues) == 0)
+            {
                 result = value;
+            }
+            numValues++;
+        }
+        return result;
+    }
+
+    public static T GetRandom<T>(this IEnumerable<T> self, System.Func<T, bool> predicate)
+    {
+        int numValues = 1;
+        T result = default(T);
+        foreach (T value in self)
+        {
+            if (predicate(value))
+            {
+                if (Random.Range(0, numValues) == 0)
+                {
+                    result = value;
+                }
+                numValues++;
+            }
+        }
+        return result;
+    }
+    public static List<T> GetRandom<T>(this IEnumerable<T> self, int targetNumber)
+    {
+        List<T> result = new List<T>();
+        int numItems = 1;
+        foreach (T t in self)
+        {
+            if (Random.Range(0, numItems) < targetNumber)
+            {
+                if (result.Count >= targetNumber)
+                {
+                    result.PopRandom();
+                }
+                result.Add(t);
+            }
+            numItems++;
         }
         return result;
     }
@@ -539,6 +589,12 @@ public static class CheersCollectionExtensions
         }
     }
 
+    public static void Enqueue<T>(this Queue<T> self, IEnumerable<T> items)
+    {
+        foreach (T item in items)
+            self.Enqueue(item);
+    }
+
     public static int Count<T>(this IEnumerable<T> self, int stopCountingAt)
     {
         int result = 0;
@@ -551,7 +607,7 @@ public static class CheersCollectionExtensions
         return result;
     }
 
-    public static int Count<T>(this List<T> self, T equalsValue)
+    public static int Count<T>(this IEnumerable<T> self, T equalsValue)
     {
         int result = 0;
         foreach (T testVal in self)
@@ -560,6 +616,46 @@ public static class CheersCollectionExtensions
                 result++;
         }
         return result;
+    }
+
+    public static int Count<T>(this IEnumerable<T> self, System.Func<T, bool> condition)
+    {
+        int result = 0;
+        foreach (T testVal in self)
+        {
+            if(condition(testVal))
+                result++;
+        }
+        return result;
+    }
+
+    public static int Count<T>(this IEnumerable<T> self, int stopCountingAt, System.Func<T, bool> condition)
+    {
+        int result = 0;
+        foreach (T testVal in self)
+        {
+            if (condition(testVal))
+            {
+                result++;
+                if (result >= stopCountingAt)
+                    return result;
+            }
+        }
+        return result;
+    }
+
+    public static float Product(this IEnumerable<float> self)
+    {
+        double result = 1.0f;
+        foreach (float f in self)
+            result *= f;
+        return (float)result;
+    }
+
+    public static IEnumerable<T> ToEnumerable<T>(this System.Array target)
+    {
+        foreach (var item in target)
+            yield return (T)item;
     }
 
     public static void SortAscending<T>(this List<T> self, System.Func<T, System.IComparable> getProperty)

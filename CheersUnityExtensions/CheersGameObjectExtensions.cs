@@ -33,6 +33,16 @@ public static class CheersGameObjectExtensions
     public static T GetComponentInAncestors<T>(this Component obj) where T : class => obj.transform.GetComponentInAncestors<T>();
     public static T GetComponentInAncestors<T>(this GameObject obj) where T : class => obj.transform.GetComponentInAncestors<T>();
 
+    public static Ray GetRayTo(this Transform from, Transform target) => new Ray(from.position, target.position - from.position);
+    public static Ray GetRayTo(this GameObject from, Transform target) => from.transform.GetRayTo(target.transform);
+
+    public static void PlaceConnectingLine(this Transform transform, Vector3 from, Vector3 to, float thickness)
+    {
+        transform.position = (from + to) * 0.5f;
+        transform.rotation = Camera.main.transform.forward.ToLookRotation_ZX(to - from);
+        transform.localScale = new Vector3((to - from).magnitude, thickness, 1);
+    }
+
     //=====================================================================================================
     // GameObjects and Components both have a Destroy() function, meaning that it's easy to accidentally
     // delete a component when you meant to delete the GameObject it's on. Explicit is better than implicit.

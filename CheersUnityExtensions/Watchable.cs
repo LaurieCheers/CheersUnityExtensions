@@ -11,12 +11,13 @@ public class Watchable<T>
         get => _value;
         set
         {
+            T oldValue = _value;
             _value = value;
-            callbacks.Invoke(value);
+            callbacks.Invoke(oldValue, value);
         }
     }
 
-    RichCallback<T> callbacks = new RichCallback<T>();
+    RichCallback<T,T> callbacks = new RichCallback<T,T>();
 
     public Watchable(T initial)
     {
@@ -27,10 +28,22 @@ public class Watchable<T>
     {
         callbacks.Add(callback, userdata);
         if (shouldCallbackNow)
-            callbacks.Invoke(_value);
+            callbacks.Invoke(_value, _value);
     }
 
     public void RemoveCallback<T2>(Action<T, T2> callback)
+    {
+        callbacks.Remove(callback);
+    }
+
+    public void AddCallback(Action<T, T> callback, bool shouldCallbackNow = false)
+    {
+        callbacks.Add(callback);
+        if (shouldCallbackNow)
+            callbacks.Invoke(_value, _value);
+    }
+
+    public void RemoveCallback(Action<T, T> callback)
     {
         callbacks.Remove(callback);
     }
@@ -39,7 +52,7 @@ public class Watchable<T>
     {
         callbacks.Add(callback);
         if (shouldCallbackNow)
-            callbacks.Invoke(_value);
+            callbacks.Invoke(_value, _value);
     }
 
     public void RemoveCallback(Action<T> callback)
@@ -51,7 +64,7 @@ public class Watchable<T>
     {
         callbacks.Add(callback);
         if (shouldCallbackNow)
-            callbacks.Invoke(_value);
+            callbacks.Invoke(_value, _value);
     }
 
     public void RemoveCallback(Action callback)

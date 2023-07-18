@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public static class CheersMath
@@ -75,6 +76,21 @@ public static class CheersMath
         float distance = offset.magnitude;
         Vector3 dir = offset / distance;
         return Vector3.Dot(point - from, dir) / distance;
+    }
+
+    public static float TotalPathLength(this IEnumerable<Vector3> points)
+    {
+        IEnumerator<Vector3> enumerator = points.GetEnumerator();
+        if (!enumerator.MoveNext())
+            return 0;
+        Vector3 current = enumerator.Current;
+        float result = 0;
+        while(enumerator.MoveNext())
+        {
+            Vector3 next = enumerator.Current;
+            result += (current - next).magnitude;
+        }
+        return result;
     }
 
     // LookFixAB is a rotation that turns the A axis to face old Z, and the B axis to face old Y. (nX is my notation for negative X).
@@ -215,4 +231,32 @@ public static class CheersMath
     public static bool IsInRange(this float self, float min, float max) => self >= min && self <= max;
     public static float Deg2Rad(this float f) => Mathf.Deg2Rad * f;
     public static float Rad2Deg(this float f) => Mathf.Rad2Deg * f;
+
+    //=========================================
+    // Rect extension method
+    //=========================================
+
+    public static void ExpandToFit(this ref Rect self, Vector2 point)
+    {
+        self.xMin = Mathf.Min(self.xMin, point.x);
+        self.xMax = Mathf.Max(self.xMax, point.x);
+        self.yMin = Mathf.Min(self.yMin, point.y);
+        self.yMax = Mathf.Max(self.yMax, point.y);
+    }
+
+    //=========================================
+    // Camera extension methods
+    //=========================================
+
+    public static float GetHorizontalFieldOfView(this Camera camera)
+    {
+        var radVerticalFov = camera.fieldOfView * Mathf.Deg2Rad;
+        var radHorizontalFov = 2 * Mathf.Atan(Mathf.Tan(radVerticalFov / 2) * camera.aspect);
+        return Mathf.Rad2Deg * radHorizontalFov;
+    }
+
+    public static Ray WorldPointToRay(this Camera camera, Vector3 worldPosition)
+    {
+        return new Ray(camera.transform.position, worldPosition - camera.transform.position);
+    }
 }

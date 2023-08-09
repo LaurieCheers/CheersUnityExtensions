@@ -30,8 +30,21 @@ public static class CheersGameObjectExtensions
         return null;
     }
 
-    public static T GetComponentInAncestors<T>(this Component obj) where T : class => obj.transform.GetComponentInAncestors<T>();
     public static T GetComponentInAncestors<T>(this GameObject obj) where T : class => obj.transform.GetComponentInAncestors<T>();
+
+	public static string FullHierarchyName(this GameObject obj) => obj.transform.FullHierarchyName();
+
+    public static string FullHierarchyName(this Transform tf)
+	{
+        string result = tf.gameObject.name;
+        Transform current = tf.parent;
+        while (current != null)
+		{
+            result = current.gameObject.name + "/" + result;
+            current = current.parent;
+        }
+        return result;
+    }
 
     public static Ray GetRayTo(this Transform from, Transform target) => new Ray(from.position, target.position - from.position);
     public static Ray GetRayTo(this GameObject from, Transform target) => from.transform.GetRayTo(target.transform);
@@ -68,7 +81,7 @@ public static class CheersGameObjectExtensions
         yield return new WaitForSeconds(delay);
         DestroyGameObject(obj);
     }
-
+	
     //=====================================================================================================
     // 16 variants of the same convenience function for instantiating prefabs
     //

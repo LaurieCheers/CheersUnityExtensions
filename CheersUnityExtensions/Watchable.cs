@@ -71,4 +71,9 @@ public class Watchable<T>
     {
         callbacks.Remove(callback);
     }
+
+    public static implicit operator T(Watchable<T> s)
+    {
+        return s.value;
+    }
 }

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public struct CheersSingleton<T> where T : MonoBehaviour
 {
-    T target;
+    public T target;
 
     public CheersSingleton(T value)
     {
@@ -16,5 +16,10 @@ public struct CheersSingleton<T> where T : MonoBehaviour
         if (instance.target == null)
             instance.target = GameObject.FindObjectOfType<T>();
         return instance.target;
+    }
+
+    public void Clear()
+    {
+        target = null;
     }
 }

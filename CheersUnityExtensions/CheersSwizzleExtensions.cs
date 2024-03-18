@@ -80,4 +80,12 @@ public static class SwizzleExtensions
     public static Vector3 YZX(this Vector3 self) => new Vector3(self.y, self.z, self.x);
     public static Vector3 ZYX(this Vector3 self) => new Vector3(self.z, self.y, self.x);
     public static Vector3 ZXY(this Vector3 self) => new Vector3(self.z, self.x, self.y);
+
+    //====================
+    //Vector2Int to Vector3Int:
+    //====================
+
+    public static Vector3Int XYO(this Vector2Int self) => new Vector3Int(self.x, self.y, 0);
+    public static Vector3Int XOY(this Vector2Int self) => new Vector3Int(self.x, 0, self.y);
+    public static Vector3Int OXY(this Vector2Int self) => new Vector3Int(0, self.x, self.y);
 }

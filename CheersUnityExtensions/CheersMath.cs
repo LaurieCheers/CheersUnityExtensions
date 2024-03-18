@@ -16,6 +16,13 @@ public static class CheersMath
         right = Vector3.Cross(forward, up).normalized;
     }
 
+    public static Vector2 SnapToEdgeGrid(Vector2 point)
+    {
+        Vector2 hEdge = new Vector2(Mathf.Floor(point.x) + 0.5f, Mathf.Round(point.y));
+        Vector2 vEdge = new Vector2(Mathf.Round(point.x), Mathf.Floor(point.y)+0.5f);
+        return ((point-hEdge).sqrMagnitude < (point-vEdge).sqrMagnitude)? hEdge: vEdge;
+    }
+
     /*public static Vector2? GetIntersection(Vector2 line1Start, Vector2 line1End, Vector2 line2Start, Vector2 line2End)
     {
     }*/
@@ -32,6 +39,11 @@ public static class CheersMath
     public static Vector3 ToRUB(Vector3 self) => new Vector3(self.x, self.y, -self.z);
     public static Vector3 FromRUB(Vector3 self) => new Vector3(self.x, self.y, -self.z);
 
+    public static Vector3 WithX(this Vector3 self, float x) => new Vector3(x, self.y, self.z);
+    public static Vector3 WithY(this Vector3 self, float y) => new Vector3(self.x, y, self.z);
+    public static Vector3 WithZ(this Vector3 self, float z) => new Vector3(self.x, self.y, z);
+    public static Vector3 WithZ(this Vector2 self, float z) => new Vector3(self.x, self.y, z);
+
     // A cosine curve rescaled to 0 when t=0, and peaking at 1 when t=1
     public static float CosBlend(float t) => 0.5f - Mathf.Cos(t * Mathf.PI * 0.5f) * 0.5f;
 
@@ -47,6 +59,10 @@ public static class CheersMath
     //=========================================
     // Vector3 extension methods
     //=========================================
+
+    public static Vector3Int RoundToInt(this Vector3 self) => new Vector3Int(Mathf.RoundToInt(self.x), Mathf.RoundToInt(self.y), Mathf.RoundToInt(self.z));
+    public static Vector3Int FloorToInt(this Vector3 self) => new Vector3Int(Mathf.FloorToInt(self.x), Mathf.FloorToInt(self.y), Mathf.FloorToInt(self.z));
+    public static Vector3Int CeilToInt(this Vector3 self) => new Vector3Int(Mathf.CeilToInt(self.x), Mathf.CeilToInt(self.y), Mathf.FloorToInt(self.z));
 
     public static Vector3 GetClosestPointOnLine(this Vector3 point, Vector3 lineStart, Vector3 lineEnd)
     {
@@ -155,11 +171,24 @@ public static class CheersMath
     // Vector2 extension methods
     //=========================================
 
+    // Get angle of vector in degrees (Up = angle 0 and ascending clockwise)
+    public static float ToAngle(this Vector2 self) => Mathf.Rad2Deg * Mathf.Atan2(self.x, self.y);
+
+    // Convert angle in degrees to a unit vector, (Up = angle 0 and ascending clockwise)
+    public static Vector2 AngleToVector(this float self) => new Vector2(Mathf.Sin(Mathf.Deg2Rad * self), Mathf.Cos(Mathf.Deg2Rad * self));
+    public static Vector2Int RoundToInt(this Vector2 self) => new Vector2Int(Mathf.RoundToInt(self.x), Mathf.RoundToInt(self.y));
+    public static Vector2Int FloorToInt(this Vector2 self) => new Vector2Int(Mathf.FloorToInt(self.x), Mathf.FloorToInt(self.y));
+    public static Vector2Int CeilToInt(this Vector2 self) => new Vector2Int(Mathf.CeilToInt(self.x), Mathf.CeilToInt(self.y));
+    public static Vector2Int ToDirection4(this Vector2 self) => self.IsMainlyHorizontal() ? ((self.x > 0)? Vector2Int.right: Vector2Int.left) : ((self.y > 0) ? Vector2Int.up : Vector2Int.down);
+    
     public static bool IsMainlyHorizontal(this Vector2 self) => Mathf.Abs(self.x) > Mathf.Abs(self.y);
 
     // cheap rotate 90 degrees
-    public static Vector2 Rot90(this Vector2 self) => new Vector3(self.y, -self.x);
-    public static Vector2 RotNeg90(this Vector2 self) => new Vector3(-self.y, self.x);
+    public static Vector2 Rot90(this Vector2 self) => new Vector2(self.y, -self.x);
+    public static Vector2 RotNeg90(this Vector2 self) => new Vector2(-self.y, self.x);
+
+    public static Vector2Int Rot90(this Vector2Int self) => new Vector2Int(self.y, -self.x);
+    public static Vector2Int RotNeg90(this Vector2Int self) => new Vector2Int(-self.y, self.x);
 
     // cheap rotate 90 degrees around x/y/z
     public static Vector3 Pitch90(this Vector3 self) => new Vector3(self.x, -self.z, self.y);

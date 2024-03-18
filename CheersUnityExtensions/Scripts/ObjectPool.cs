@@ -10,6 +10,14 @@ public class GameObjectPool: ObjectPool<GameObject>
     }
 }
 
+public class ComponentPool<T> : ObjectPool<T> where T: Component
+{
+    public ComponentPool(T prefab, Transform parent) :
+        base(() => prefab.Instantiate(parent), t => t.gameObject.SetActive(true), t => t.gameObject.SetActive(false))
+    {
+    }
+}
+
 public class ObjectPool<T>
 {
     System.Func<T> create;
@@ -18,14 +26,14 @@ public class ObjectPool<T>
     List<T> active = new List<T>();
     Queue<T> inactive = new Queue<T>();
 
-    public ObjectPool(System.Func<T> create, System.Action<T> activate, System.Action<T> deactivate)
+    public ObjectPool(System.Func<T> create, System.Action<T> activate = null, System.Action<T> deactivate = null)
     {
         this.create = create;
         this.activate = activate;
         this.deactivate = deactivate;
     }
 
-    public T Get()
+    public T GetOrCreate()
     {
         T result;
         if (!inactive.TryDequeue(out result))
@@ -33,23 +41,35 @@ public class ObjectPool<T>
             result = create();
         }
         active.Add(result);
-        activate(result);
+        if(activate != null)
+            activate(result);
         return result;
     }
 
-    public void Add(T item)
+    public void Return(T item)
     {
         active.Remove(item);
         inactive.Enqueue(item);
-        deactivate(item);
+        if(deactivate != null)
+            deactivate(item);
     }
 
     public void InactivateAll()
     {
-        foreach (T item in active)
+        if (deactivate != null)
         {
-            deactivate(item);
-            inactive.Enqueue(item);
+            foreach (T item in active)
+            {
+                deactivate(item);
+                inactive.Enqueue(item);
+            }
+        }
+        else
+        {
+            foreach (T item in active)
+            {
+                inactive.Enqueue(item);
+            }
         }
 
         active.Clear();

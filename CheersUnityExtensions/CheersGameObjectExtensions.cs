@@ -33,6 +33,16 @@ public static class CheersGameObjectExtensions
     public static T GetComponentInAncestors<T>(this Component obj) where T : class => obj.transform.GetComponentInAncestors<T>();
     public static T GetComponentInAncestors<T>(this GameObject obj) where T : class => obj.transform.GetComponentInAncestors<T>();
 
+    public static void DestroyAllChildren(this Transform t)
+    {
+        for (int Idx = 0; Idx < t.childCount; ++Idx)
+        {
+            Transform child = t.GetChild(Idx);
+            child.DestroyGameObject();
+        }
+        t.DetachChildren();
+    }
+
     public static Ray GetRayTo(this Transform from, Transform target) => new Ray(from.position, target.position - from.position);
     public static Ray GetRayTo(this GameObject from, Transform target) => from.transform.GetRayTo(target.transform);
 
@@ -68,6 +78,22 @@ public static class CheersGameObjectExtensions
         yield return new WaitForSeconds(delay);
         DestroyGameObject(obj);
     }
+
+    //=====================================================================================================
+
+    // pick a point within the BoxCollider volume using a normalized position (each axis ranges from -1 to 1, 0 being the collider center)
+    public static Vector3 GetNormalizedLocalPosition(this BoxCollider collider, Vector3 normalizedPosition)
+    {
+        Vector3 offset = collider.size;
+        offset.Scale(normalizedPosition * 0.5f);
+        return collider.center + offset;
+    }
+
+    public static Vector3 GetNormalizedWorldPosition(this BoxCollider collider, Vector3 normalizedPosition)
+    {
+        return collider.transform.TransformPoint(collider.GetNormalizedLocalPosition(normalizedPosition));
+    }
+
 
     //=====================================================================================================
     // 16 variants of the same convenience function for instantiating prefabs

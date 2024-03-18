@@ -45,6 +45,20 @@ public static class CheersCollectionExtensions
         return fallback();
     }
 
+    public static bool TryFind<T>(this IEnumerable<T> self, System.Func<T, bool> predicate, out T result)
+    {
+        foreach (T item in self)
+        {
+            if (predicate(item))
+            {
+                result = item;
+                return true;
+            }
+        }
+        result = default(T);
+        return false;
+    }
+
     public static int FindMin(this IEnumerable<int> self)
     {
         int min = int.MaxValue;
@@ -521,6 +535,40 @@ public static class CheersCollectionExtensions
         self.Insert(Random.Range(0, self.Count + 1), newValue);
     }
 
+    public static void RemoveTailWithLength<T>(this List<T> self, int length)
+    {
+        if (self.Count <= length)
+            self.Clear();
+        else
+            self.RemoveRange(self.Count - length, length);
+    }
+
+    public static void RemoveTailFromIndex<T>(this List<T> self, int fromIndex)
+    {
+        self.RemoveRange(fromIndex, self.Count - fromIndex);
+    }
+
+    public static void RemoveAdjacentDuplicates<T>(this List<T> self) where T: struct, System.IConvertible // "where T is an enum"
+    {
+        int ReadIdx = 1;
+        int WriteIdx = 1;
+        while( ReadIdx < self.Count )
+        {
+            if (self[ReadIdx].Equals(self[ReadIdx - 1]))
+            {
+                ReadIdx++;
+            }
+            else
+            {
+                self[WriteIdx] = self[ReadIdx];
+                WriteIdx++;
+                ReadIdx++;
+            }
+        }
+        if(ReadIdx < self.Count)
+            self.RemoveTailFromIndex(ReadIdx);
+    }
+
     public static T PopItemAt<T>(this List<T> self, int index)
     {
         T result = self[index];
@@ -749,5 +797,13 @@ public static class CheersCollectionExtensions
             else
                 ++Idx;
         }
+    }
+
+    public static Dictionary<K2, V2> Convert<K, V, K2, V2>(this Dictionary<K, V> self, System.Func<KeyValuePair<K, V>, K2> keyGen, System.Func<KeyValuePair<K, V>, V2> valueGen)
+    {
+        Dictionary<K2, V2> result = new Dictionary<K2, V2>();
+        foreach (KeyValuePair<K, V> kv in self)
+            result.Add(keyGen(kv), valueGen(kv));
+        return result;
     }
 }

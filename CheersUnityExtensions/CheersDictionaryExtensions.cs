@@ -83,6 +83,30 @@ public static class CheersDictionaryExtensions
         return result;
     }
 
+    public static V GetOrAddPooled<K, V>(this Dictionary<K, V> self, K key, ObjectPool<V> pool)
+    {
+        if (self.TryGetValue(key, out V result))
+            return result;
+
+        result = pool.GetOrCreate();
+        self.Add(key, result);
+        return result;
+    }
+
+    public static void RemoveToPool<K, V>(this Dictionary<K, V> self, K key, ObjectPool<V> pool)
+    {
+        if (self.Remove(key, out V value))
+        {
+            pool.Return(value);
+        }
+    }
+
+    public static void ClearToPool<K, V>(this Dictionary<K, V> self, ObjectPool<V> pool)
+    {
+        foreach (V value in self.Values)
+            pool.Return(value);
+        self.Clear();
+    }
 
 
     public static V Mutate<K, V>(this Dictionary<K, V> dict, K key, V baseValue, System.Func<V, V> mutator)

@@ -21,19 +21,17 @@ public static class OnEnterPlaySystem
         {
             foreach (OnEnterPlay_BaseAttribute attr in (OnEnterPlay_BaseAttribute[])field.GetCustomAttributes(typeof(OnEnterPlay_BaseAttribute), false))
             {
-                Debug.Log("Field "+field.Name);
+                //Debug.Log("Field "+field.Name);
                 attr.OnEnterPlay(field);
                 break;
             }
         }
 
-        Debug.Log("Hellox");
-
         foreach (MethodInfo method in TypeCache.GetMethodsWithAttribute<OnEnterPlay_BaseAttribute>())
         {
             foreach (OnEnterPlay_BaseAttribute attr in (OnEnterPlay_BaseAttribute[])method.GetCustomAttributes(typeof(OnEnterPlay_BaseAttribute), false))
             {
-                Debug.Log("Method " + method.Name);
+                //Debug.Log("Method " + method.Name);
                 attr.OnEnterPlay(method);
                 break;
             }

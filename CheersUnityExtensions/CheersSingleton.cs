@@ -11,7 +11,7 @@ public struct CheersSingleton<T> where T : MonoBehaviour
         this.target = value;
     }
 
-    public static implicit operator T(CheersSingleton<T> instance)
+    public static T Resolve(ref CheersSingleton<T> instance)
     {
         if (instance.target == null)
             instance.target = GameObject.FindObjectOfType<T>();

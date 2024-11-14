@@ -10,6 +10,11 @@ public enum RemoveThisItem
 }
 public static class CheersCollectionExtensions
 {
+    public static bool Contains<T>(this T[] array, T value)
+    {
+        return System.Array.IndexOf(array, value) >= 0;
+    }
+
     public static IEnumerable<T> ToIEnumerable<T>(this IEnumerator<T> enumerator)
     {
         while (enumerator.MoveNext())
@@ -529,6 +534,13 @@ public static class CheersCollectionExtensions
         return result;
     }
 
+    public static void ClearAndReturn<T>(this List<T> self, ObjectPool<T> pool)
+    {
+        foreach (T value in self)
+            pool.Return(value);
+        self.Clear();
+    }
+
     public static void InsertRandom<T>(this List<T> self, T newValue)
     {
         // NB not the same range as GetRandomIndex! self.Count is a valid insertion index.
@@ -592,7 +604,7 @@ public static class CheersCollectionExtensions
         return self.PopRange(self.Count - count, count);
     }
 
-    public static T PopAndSwapItemAt<T>(this List<T> self, int index)
+    public static T RemoveAtAndSwap<T>(this List<T> self, int index)
     {
         if (index == self.Count - 1)
             return self.PopLast();
@@ -603,7 +615,7 @@ public static class CheersCollectionExtensions
     }
 
     public static T PopRandom<T>(this List<T> self) => self.PopItemAt(self.GetRandomIndex());
-    public static T PopAndSwapRandom<T>(this List<T> self) => self.PopAndSwapItemAt(self.GetRandomIndex());
+    public static T PopAndSwapRandom<T>(this List<T> self) => self.RemoveAtAndSwap(self.GetRandomIndex());
 
     public static void SwapItems<T>(this T[] self, int indexA, int indexB)
     {
@@ -706,6 +718,12 @@ public static class CheersCollectionExtensions
             yield return (T)item;
     }
 
+    public static void AddIndices(this List<int> self, int count)
+    {
+        for (int Idx = 0; Idx < count; Idx++)
+            self.Add(Idx);
+    }
+
     public static void SortAscending<T>(this List<T> self, System.Func<T, System.IComparable> getProperty)
     {
         self.Sort((a, b) => getProperty(a).CompareTo(getProperty(b)));
@@ -775,15 +793,71 @@ public static class CheersCollectionExtensions
 
     public static void ForEach<T>(this List<T> list, System.Func<T, RemoveThisItem> body)
     {
-        for (int Idx = 0; Idx < list.Count;)
+        // efficiency: if nothing needs to be removed, we'll just run through this first loop and return
+        int initialIdx = 0;
+        while (true)
         {
-            T t = list[Idx];
-            RemoveThisItem result = body(t);
-            if (result == RemoveThisItem.Yes)
-                list.RemoveAt(Idx);
-            else
-                ++Idx;
+            if (initialIdx >= list.Count)
+                return;
+
+            if (body(list[initialIdx]) == RemoveThisItem.Yes)
+                break;
+
+            initialIdx++;
         }
+
+        // as soon as we find we need to remove something, switch to this loop
+        int readIdx = initialIdx+1;
+        int writeIdx = initialIdx;
+        while (readIdx < list.Count)
+        {
+            if (body(list[readIdx]) == RemoveThisItem.No)
+            {
+                list[writeIdx] = list[readIdx];
+                ++writeIdx;
+            }
+            ++readIdx;
+        }
+        list.RemoveRange(writeIdx, list.Count - writeIdx);
+    }
+
+    public static void ForEach<T>(this List<T> list, System.Func<T, RemoveThisItem> body, ObjectPool<T> poolForRemovedObjects)
+    {
+        // for efficiency, if nothing needs to be removed, we'll just run through this first loop and return
+        int initialIdx = 0;
+        while (true)
+        {
+            if (initialIdx >= list.Count)
+                return;
+
+            T item = list[initialIdx];
+            if (body(item) == RemoveThisItem.Yes)
+            {
+                poolForRemovedObjects.Return(item);
+                break;
+            }
+
+            initialIdx++;
+        }
+
+        // as soon as we find we need to remove something, switch to this loop
+        int readIdx = initialIdx + 1;
+        int writeIdx = initialIdx;
+        while (readIdx < list.Count)
+        {
+            T item = list[readIdx];
+            if (body(item) == RemoveThisItem.Yes)
+            {
+                poolForRemovedObjects.Return(item);
+            }
+            else
+            {
+                list[writeIdx] = list[readIdx];
+                ++writeIdx;
+            }
+            ++readIdx;
+        }
+        list.RemoveRange(writeIdx, list.Count - writeIdx);
     }
 
     public static void ForEach<T>(this List<T> list, System.Func<int, T, RemoveThisItem> body)
@@ -805,5 +879,32 @@ public static class CheersCollectionExtensions
         foreach (KeyValuePair<K, V> kv in self)
             result.Add(keyGen(kv), valueGen(kv));
         return result;
+    }
+
+    public static void Clear<T>(List<T> list, ObjectPool<T> pool)
+    {
+        foreach (T obj in list)
+        {
+            pool.Return(obj);
+        }
+        list.Clear();
+    }
+
+    public static void Clear<K,V>(Dictionary<K,V> dict, ObjectPool<K> pool)
+    {
+        foreach (K obj in dict.Keys)
+        {
+            pool.Return(obj);
+        }
+        dict.Clear();
+    }
+
+    public static void Clear<K, V>(Dictionary<K, V> dict, ObjectPool<V> pool)
+    {
+        foreach (V obj in dict.Values)
+        {
+            pool.Return(obj);
+        }
+        dict.Clear();
     }
 }

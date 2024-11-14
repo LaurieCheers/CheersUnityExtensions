@@ -86,6 +86,12 @@ public static class CheersMath
 
     public static bool IsAbovePlane(this Vector3 point, Vector3 planeOrigin, Vector3 planeUp) => Vector3.Dot(point - planeOrigin, planeUp) > 0;
 
+    public static Vector3 ReflectInPlane(this Vector3 vec, Vector3 planeNormalMustBeLength1)
+    {
+        float dot = Vector3.Dot(planeNormalMustBeLength1, vec);
+        return vec - planeNormalMustBeLength1 * dot * 2;
+    }
+
     public static float InverseLerp(this Vector3 point, Vector3 from, Vector3 to)
     {
         Vector3 offset = (to - from);
@@ -287,5 +293,105 @@ public static class CheersMath
     public static Ray WorldPointToRay(this Camera camera, Vector3 worldPosition)
     {
         return new Ray(camera.transform.position, worldPosition - camera.transform.position);
+    }
+
+    public static void MinMax(int a, int b, out int min, out int max)
+    {
+        if (a < b)
+        {
+            min = a;
+            max = b;
+        }
+        else
+        {
+            min = b;
+            max = a;
+        }
+    }
+
+    public static void MinMax(int a, int b, int c, out int min, out int max)
+    {
+        MinMax(a, b, out min, out max);
+
+        if (c < min)
+        {
+            min = c;
+        }
+        else if (c > max)
+        {
+            max = c;
+        }
+    }
+
+
+    public static void MinMax(int a, int b, int c, int d, out int min, out int max)
+    {
+        MinMax(a, b, out min, out max);
+
+        if (c < d)
+        {
+            if (c < min)
+                min = c;
+            if (d > max)
+                max = d;
+        }
+        else
+        {
+            if (d < min)
+                min = d;
+            if (c > max)
+                max = c;
+        }
+    }
+
+    public static void MinMax(int a, int b, int c, out int min, out int mid, out int max)
+    {
+        if (a <= b)
+        {
+            if (b <= c)
+            {
+                min = a;
+                mid = b;
+                max = c;
+            }
+            else // b > c and b >= a
+            {
+                max = b;
+
+                if (a <= c)
+                {
+                    min = a;
+                    mid = c;
+                }
+                else
+                {
+                    min = c;
+                    mid = a;
+                }
+            }
+        }
+        // a > b
+        else if (a <= c)
+        {
+            min = b;
+            mid = a;
+            max = c;
+        }
+        else
+        {
+            // a > b and c
+            max = a;
+
+            if (b <= c)
+            {
+                min = b;
+                mid = c;
+            }
+            else
+            {
+                min = c;
+                mid = b;
+            }
+        }
     }
 }
